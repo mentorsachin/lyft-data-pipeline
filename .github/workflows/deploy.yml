@@ -196,10 +196,6 @@ jobs:
           echo "account_id=$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
           echo "bucket_name=mission-deh-hof-nyctlc-live-$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
 
-      - name: Sync Glue scripts
-        run: |
-          aws s3 sync glue-scripts/ s3://${{ steps.account.outputs.bucket_name }}/scripts/ --delete
-
       - name: Deploy pipeline stack
         run: |
           aws cloudformation deploy \
@@ -207,6 +203,24 @@ jobs:
             --stack-name ${{ env.STACK_NAME_PIPELINE }} \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
+
+      - name: Sync Glue scripts
+        run: |
+          BUCKET=${{ steps.account.outputs.bucket_name }}
+          echo "Waiting for bucket ${BUCKET} to be available..."
+          for attempt in $(seq 1 10); do
+            if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+              echo "Bucket is available."
+              break
+            fi
+            if [ "$attempt" -eq 10 ]; then
+              echo "ERROR: bucket ${BUCKET} not available after $attempt attempts." >&2
+              exit 1
+            fi
+            echo "Not ready yet (attempt ${attempt}/10); retrying in 6s..."
+            sleep 6
+          done
+          aws s3 sync glue-scripts/ "s3://${BUCKET}/scripts/" --delete
 
       - name: Post-deploy health check
         run: |
@@ -249,10 +263,6 @@ jobs:
           echo "account_id=$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
           echo "bucket_name=mission-deh-hof-nyctlc-live-$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
 
-      - name: Sync Glue scripts
-        run: |
-          aws s3 sync glue-scripts/ s3://${{ steps.account.outputs.bucket_name }}/scripts/ --delete
-
       - name: Deploy pipeline stack
         run: |
           aws cloudformation deploy \
@@ -260,6 +270,24 @@ jobs:
             --stack-name ${{ env.STACK_NAME_PIPELINE }} \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
+
+      - name: Sync Glue scripts
+        run: |
+          BUCKET=${{ steps.account.outputs.bucket_name }}
+          echo "Waiting for bucket ${BUCKET} to be available..."
+          for attempt in $(seq 1 10); do
+            if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+              echo "Bucket is available."
+              break
+            fi
+            if [ "$attempt" -eq 10 ]; then
+              echo "ERROR: bucket ${BUCKET} not available after $attempt attempts." >&2
+              exit 1
+            fi
+            echo "Not ready yet (attempt ${attempt}/10); retrying in 6s..."
+            sleep 6
+          done
+          aws s3 sync glue-scripts/ "s3://${BUCKET}/scripts/" --delete
 
       - name: Integration smoke test
         run: |
@@ -301,10 +329,6 @@ jobs:
           echo "account_id=$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
           echo "bucket_name=mission-deh-hof-nyctlc-live-$ACCOUNT_ID" >> "$GITHUB_OUTPUT"
 
-      - name: Sync Glue scripts
-        run: |
-          aws s3 sync glue-scripts/ s3://${{ steps.account.outputs.bucket_name }}/scripts/ --delete
-
       - name: Deploy pipeline stack
         run: |
           aws cloudformation deploy \
@@ -312,6 +336,24 @@ jobs:
             --stack-name ${{ env.STACK_NAME_PIPELINE }} \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
+
+      - name: Sync Glue scripts
+        run: |
+          BUCKET=${{ steps.account.outputs.bucket_name }}
+          echo "Waiting for bucket ${BUCKET} to be available..."
+          for attempt in $(seq 1 10); do
+            if aws s3api head-bucket --bucket "$BUCKET" 2>/dev/null; then
+              echo "Bucket is available."
+              break
+            fi
+            if [ "$attempt" -eq 10 ]; then
+              echo "ERROR: bucket ${BUCKET} not available after $attempt attempts." >&2
+              exit 1
+            fi
+            echo "Not ready yet (attempt ${attempt}/10); retrying in 6s..."
+            sleep 6
+          done
+          aws s3 sync glue-scripts/ "s3://${BUCKET}/scripts/" --delete
 
       - name: Production release summary
         run: |
